@@ -20,7 +20,7 @@ int main(int argc, char* argv[]) {
         std::cout << "use like this:\n\t> ./gsetui ip.address portnum \n";
         return 1;
     }
-    // create io context manager and local TCP endpoint from user arguments
+    // create io context manager and local TCP endpoint from CLI arguments
     boost::asio::io_context context;
     boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::make_address_v4(argv[1]), strtoul(argv[2], nullptr, 10));
     HKADCNode node(endpoint, context);
@@ -144,6 +144,7 @@ int main(int argc, char* argv[]) {
                     ftxui::text("systems"),
                     ftxui::separator(), 
                     ftxui::text(" "),
+                    ftxui::text(" "),
                     system_list->Render()}) | ftxui::vscroll_indicator | ftxui::frame | size(ftxui::HEIGHT, ftxui::LESS_THAN, 20) | ftxui::border;
     });
     // get the current connected status label
@@ -167,41 +168,26 @@ int main(int argc, char* argv[]) {
     auto debug_label = [&] {
         return node.debug_msg;
     };
-    auto readout_label = [&] {
-        std::string result;
-        if (connected && node.poll_started) {
-            result = std::to_string(node.displayable_reading.size());
-        } else {
-            result = "empty";
-        }
-        return result;
-    };
-    auto basic_readout_table = [&] {
-        std::vector<std::vector<std::string>> result;
-        if (connected && node.poll_started) {
-            result = node.displayable_reading;
-        }
-        auto tab = ftxui::Table(result);
-        return tab;
-    };
 
     auto detail_readout_table = [&] {
-        // std::vector<std::vector<std::string>> result = node.displayable_reading;
         std::vector<std::vector<std::string>> result = node.format_table;
-        // for (size_t k = 0; k < 16; ++k) {
-        //     node.debug_msg = result[k];
-        // }
         auto tab = ftxui::Table(result);
-        // if (connected && node.poll_started) {
-        //     // tab.SelectRow(0).Decorate(ftxui::bold);
-        // }
+        if (node.format_table.size() > 0) {
+            std::vector<ftxui::Color::Palette256> colortab = {ftxui::Color::Blue1, ftxui::Color::Orange1, ftxui::Color::Purple, ftxui::Color::Red1};
+            for (size_t k = 1; k <= config::v_map.size(); ++k) {
+                tab.SelectCell(1, k).Decorate(ftxui::color(colortab[config::v_map[k - 1]]));
+            }
+            tab.SelectColumn(1).BorderRight(ftxui::LIGHT);
+            tab.SelectColumn(1).BorderLeft(ftxui::LIGHT);
+            tab.SelectRow(0).Decorate(ftxui::bold);
+        }
         return tab.Render();
     };
     auto toggle_context = ftxui::Renderer(onoff_layout, [&] {
         return ftxui::vbox({
             ftxui::text(status_label()) | ftxui::blink | ftxui::center, 
-            ftxui::separator(),
-            ftxui::text(poll_label()) | ftxui::blink | ftxui::center, 
+            // ftxui::separator(),
+            // ftxui::text(poll_label()) | ftxui::blink | ftxui::center, 
             ftxui::separator(),
             ftxui::hflow({
                 on_system_select()
@@ -210,23 +196,14 @@ int main(int argc, char* argv[]) {
             onoff_layout->Render(),
         }) | ftxui::border;
     });
-    
-    auto on_placeholder = [&] {
-        return "click";
-    };
 
-    auto placeholder_button = ftxui::Button("measurement", on_placeholder, ftxui::ButtonOption::Simple());
-    // auto table_head = ftxui::Container::Vertical({placeholder_button});
-    // auto table_head = ftxui::Container::Vertical({ftxui::text("measurement")});
     auto table_context = ftxui::Renderer([&] {
         return ftxui::vbox({
-            // table_head->Render(),
             // ftxui::text(debug_label()),
             ftxui::text("measurement"),
             ftxui::separator(),
             ftxui::vbox({
                 detail_readout_table()
-                // measure_table.Render()
             }) | size(ftxui::HEIGHT, ftxui::GREATER_THAN, 17) | size(ftxui::WIDTH, ftxui::GREATER_THAN, 20)
         }) | ftxui::border;
     });
