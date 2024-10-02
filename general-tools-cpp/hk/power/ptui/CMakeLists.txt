@@ -14,6 +14,7 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/log)
 
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/src)
 include(FetchContent)
 
 FetchContent_Declare(ftxui
@@ -29,9 +30,9 @@ if(NOT ftxui_POPULATED)
     add_subdirectory(${ftxui_SOURCE_DIR} ${ftxui_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
 
-add_executable(ptui ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
-add_executable(debug-server ${CMAKE_CURRENT_SOURCE_DIR}/debug_server.cpp)
-add_executable(debug-client ${CMAKE_CURRENT_SOURCE_DIR}/debug_client.cpp)
+add_executable(ptui ${CMAKE_CURRENT_SOURCE_DIR}/app/main.cpp)
+add_executable(debug-server ${CMAKE_CURRENT_SOURCE_DIR}/app/debug_server.cpp)
+add_executable(debug-client ${CMAKE_CURRENT_SOURCE_DIR}/app/debug_client.cpp)
 
 add_library(ptui-lib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/parameters.h

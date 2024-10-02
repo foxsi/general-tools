@@ -12,7 +12,7 @@
 #include <iostream>
 #include <algorithm>
 #include <functional>
-#include "src/listen.h"
+#include "listen.h"
 
 int main(int argc, char* argv[]) {
     // handle CLI arguments: 
