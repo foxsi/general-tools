@@ -157,14 +157,14 @@ void HKADCNode::poll_adc() {
         last_reading = adc_table(reply);
         displayable_reading.clear();
         format_table.clear();
-        format_table.push_back({"Voltage", "Current"});
+        format_table.push_back({"System", "Voltage", "Current"});
         for (size_t k = 0; k < 16; ++k) {
             if (k < 12) {
                 std::stringstream v_stream;
                 v_stream << std::fixed << std::setprecision(3) << last_reading[config::v_map[k]];
                 std::stringstream i_stream;
                 i_stream << std::fixed << std::setprecision(3) << last_reading[config::i_map[k]];
-                format_table.push_back({v_stream.str(), i_stream.str()});
+                format_table.push_back({config::measure_names[k], v_stream.str(), i_stream.str()});
             }
             std::stringstream stream;
             stream << std::fixed << std::setprecision(3) << last_reading[k];
@@ -254,24 +254,6 @@ std::vector<double> HKADCNode::adc_table(std::vector<uint8_t>& data) {
     double measured_5v = v_divider_coefficients[3] * ref_5v * (raw_5v_src & 0x0fff) / 0x0fff;
 
     std::vector<double> result(16);
-    std::vector<std::string> ch_names = {
-        "28 V",
-        "5.5 V",
-        "12 V",
-        "5 V",
-        "Regulators (A)",
-        "SAAS 12 V",
-        "SAAS 5 V",
-        "Timepix 12 V",
-        "Timepix 5 V",
-        "CdTe DE",
-        "CdTe 1",
-        "CdTe 2",
-        "CdTe 3",
-        "CdTe 4",
-        "CMOS 1",
-        "CMOS 2"
-    };
     for (size_t i = 0; i < config::REPLY_SIZE; i += 2) {
         uint16_t raw = adc_range_to_uint16_t(data, i);
         uint16_t ch = raw >> 12;

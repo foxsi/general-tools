@@ -91,8 +91,22 @@ static const std::vector<size_t> i_map = {
     5, 
     4
 };
+// names for measurement display
+static const std::vector<std::string> measure_names = {
+    "de",
+    "cdte1", 
+    "cdte2", 
+    "cdte3", 
+    "cdte4", 
+    "cmos1", 
+    "cmos2", 
+    "timepix pi + hv", 
+    "timepix fpga", 
+    "saas sbc + vtv", 
+    "saas camera", 
+    "regulators" 
+};
 }; // namespace config
-
 namespace util {
     std::string get_now_string();
     std::string get_now_millis();
