@@ -175,10 +175,11 @@ int main(int argc, char* argv[]) {
         if (node.format_table.size() > 0) {
             std::vector<ftxui::Color::Palette256> colortab = {ftxui::Color::Blue1, ftxui::Color::Orange1, ftxui::Color::Purple, ftxui::Color::Red1};
             for (size_t k = 1; k <= config::v_map.size(); ++k) {
-                tab.SelectCell(1, k).Decorate(ftxui::color(colortab[config::v_map[k - 1]]));
+                tab.SelectRow(k).Decorate(ftxui::color(colortab[config::v_map[k - 1]]));
             }
             tab.SelectColumn(1).BorderRight(ftxui::LIGHT);
             tab.SelectColumn(1).BorderLeft(ftxui::LIGHT);
+            tab.SelectRow(-1).BorderBottom(ftxui::LIGHT);
             tab.SelectRow(0).Decorate(ftxui::bold);
         }
         return tab.Render();
