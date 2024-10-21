@@ -1,0 +1,15 @@
+# macos
+*.DS_Store
+
+# C++
+build/
+bin/
+*.a
+*.o
+
+# logging
+*.log
+log/
+
+# vscode
+.vscode/
