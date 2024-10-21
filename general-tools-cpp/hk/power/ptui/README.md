@@ -6,6 +6,7 @@ A tiny power monitor for the FOXSI housekeeping board. You can use it to turn sy
 
 ```mermaid
 flowchart LR
+
 HK board (192.168.1.16:7777) <--> ptui (192.168.1.118:9999)
 ```
 
@@ -42,11 +43,12 @@ You should see a few lines print out before it exits after 5 seconds. After the 
 
 ## Operation
 Before running, you will need a Housekeeping board with power, and an Ethernet connection to the machine running this software. Your network configuration should permit you to bind a local socket to an address in the 192.168.1.XXX subnetwork.
+
 Run it like this:
 ```bash
 $ ./bin/ptui ipaddress port
 ```
-providing your local IP address and port for your end of the connection. Once the UI launches, you can input the IP and port of the Housekeeping board. These are `192.168.1.16` and `7777`:
+providing your local IP address and port for your end of the connection. For example, the GSE computer would be run with local IP address 192.168.1.118 and port 9999. Once the UI launches, you can input the remote IP and port of the Housekeeping board. These are `192.168.1.16` and `7777`:
 
 ![image](assets/capture.png)
 
