@@ -25,10 +25,11 @@ static const std::unordered_map<std::string, uint8_t> token_lookup = {
     {"formatter",   0x09}
 };
 
-// commands to setup ADC and requrest data
+// commands to setup ADC and request data
 static const std::vector<uint8_t> setup_adc = {0x04, 0xff, 0x00};
 static const std::vector<uint8_t> request_adc = {0x04, 0x20, 0x00};
 
+// names of systems in display
 static const std::vector<std::string> names = {
     // "formatter",
     "de",
@@ -108,7 +109,9 @@ static const std::vector<std::string> measure_names = {
 };
 }; // namespace config
 namespace util {
+    // get current time as string
     std::string get_now_string();
+    // get current time as string, including milliseconds
     std::string get_now_millis();
 };
 

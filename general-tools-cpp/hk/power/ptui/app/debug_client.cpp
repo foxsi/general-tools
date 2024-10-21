@@ -6,6 +6,9 @@
 #include <iomanip>
 #include <sstream>
 
+/**
+ * @brief A sample TCP client (like the Formatter) for debugging use.
+ */
 int main(int argc, char** argv) {
     std::cout << argc << "\n";
     if (argc != 5) {
@@ -21,8 +24,6 @@ int main(int argc, char** argv) {
 
     node.setup_socket(remote_endpoint);
     context.run();
-    // context.poll();
-    // context.run();
 
     return 0;
 }

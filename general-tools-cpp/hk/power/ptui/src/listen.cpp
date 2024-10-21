@@ -17,6 +17,7 @@ HKADCNode::HKADCNode(boost::asio::ip::tcp::endpoint &local, boost::asio::io_cont
     max_retry_count = 4;
     linecounter = 0;
 
+    // open log files
     raw_file.open("log/raw_" + util::get_now_string() + ".log", std::ios::binary | std::ios::out | std::ios::app);
     csv_file.open("log/parse_" + util::get_now_string() + ".csv", std::ios::out | std::ios::app);
     csv_first = true;
@@ -136,7 +137,6 @@ bool HKADCNode::run_context_until() {
     return false;
 }
 
-// /bin/send_rtd 192.168.1.16 7777
 void HKADCNode::poll_adc() {
     if (!poll_started) {
         return;
@@ -210,7 +210,7 @@ void HKADCNode::csv_write() {
         return;
     }
 
-    linecounter = 0;
+    // linecounter = 0;
     std::string now_line = util::get_now_string();
     std::string header = "";
     

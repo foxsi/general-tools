@@ -33,6 +33,7 @@ endif()
 add_executable(ptui ${CMAKE_CURRENT_SOURCE_DIR}/app/main.cpp)
 add_executable(debug-server ${CMAKE_CURRENT_SOURCE_DIR}/app/debug_server.cpp)
 add_executable(debug-client ${CMAKE_CURRENT_SOURCE_DIR}/app/debug_client.cpp)
+add_executable(test ${CMAKE_CURRENT_SOURCE_DIR}/test/test.cpp)
 
 add_library(ptui-lib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/parameters.h
@@ -72,6 +73,9 @@ if(Boost_FOUND)
     target_link_libraries(ptui PUBLIC Boost::filesystem ptui-lib)
     target_link_libraries(debug-server PUBLIC Boost::filesystem)
     target_link_libraries(debug-client PUBLIC Boost::filesystem ptui-lib)
+    target_link_libraries(test PUBLIC Boost::filesystem ptui-lib)
 elseif(NOT Boost_FOUND)
     error("Boost not found.")
 endif()
+
+add_test(NAME test COMMAND test)

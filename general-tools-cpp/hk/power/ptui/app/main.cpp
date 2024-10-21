@@ -2,6 +2,7 @@
 #include "ftxui/component/captured_mouse.hpp"  // for ftxui
 #include "ftxui/component/component.hpp"       // for Input, Renderer, Vertical
 #include "ftxui/component/component_base.hpp"  // for ComponentBase
+#include "ftxui/component/component_options.hpp"
 #include "ftxui/component/screen_interactive.hpp"  // for Component, ScreenInteractive
 #include <ftxui/screen/color.hpp>
 #include <ftxui/dom/table.hpp>
@@ -130,7 +131,7 @@ int main(int argc, char* argv[]) {
     system_list->Add(radio_list);   // add all systems to the radio button list
     
     auto onoff_layout = ftxui::Container::Horizontal({on_button, off_button});
-    
+
     // render the ip address/port number entry fields
     auto ip_entry = ftxui::Renderer(ip_layout, [&] {
         return ftxui::vbox({
@@ -221,10 +222,11 @@ int main(int argc, char* argv[]) {
     std::thread refresh_ui([&] {
         while (refresh_ui_continue) {
             using namespace std::chrono_literals;
-            std::this_thread::sleep_for(100ms);
+            std::this_thread::sleep_for(1s);
             // `screen.Post(task)` will execute the update on the thread
             //  where |screen| lives (e.g. the main thread). Using 
             // `screen.Post(task)` is threadsafe.
+
             screen.Post([&] { node.poll_adc(); });
 
             // After updating the state, request a new frame to be drawn. This is done

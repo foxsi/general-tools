@@ -5,10 +5,7 @@
 #include <iomanip>
 #include <sstream>
 
-// const std::vector<uint8_t> adc_reply = {
-//     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
-//     0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f
-// };
+// test reply messages, sent in response to Formatter requests
 const std::vector<uint8_t> adc_reply1 = {
     0x09, 0xB8, 0x14, 0xA0, 0x2A, 0x25, 0x3A, 0x33, 0x48, 0xC0, 0x58, 0x8B, 0x68, 0x93, 0x78, 0x94, 
     0x88, 0x95, 0x98, 0x8C, 0xA8, 0x97, 0xB8, 0x8C, 0xC8, 0x99, 0xD8, 0x90, 0xE8, 0xA3, 0xF8, 0x94
@@ -18,6 +15,9 @@ const std::vector<uint8_t> adc_reply2 = {
     0x88, 0xff, 0x98, 0xff, 0xA8, 0xff, 0xB8, 0xff, 0xC8, 0xff, 0xD8, 0xff, 0xE8, 0xff, 0xF8, 0xff
 };
 
+/**
+ * @brief A sample TCP server (like the Housekeeping board) for debugging use.
+ */
 int main(int argc, char** argv) {
     if (argc != 3) {
         std::cout << "use like this:\n\t> ./debug_server ip.address portnum \n";
@@ -46,7 +46,7 @@ int main(int argc, char** argv) {
                 for (auto &c: msg) {
                     std::cout << std::setw(2) << std::setfill('0') << std::hex << (int)c << " ";
                 }
-                // handle hk requests, reply with correct-length garbage:
+                // handle hk requests, reply with correct-length garbage packets:
                 bool is_req = true;
                 for (size_t i = 0; i < msg.size(); ++i) {
                     if (i > 2) {
@@ -67,6 +67,7 @@ int main(int argc, char** argv) {
                     }
                 }
                 if (is_req) {
+                    // alternate sending reply1 and reply2
                     if (flop) {
                         sock.send(boost::asio::buffer(adc_reply1));
                     } else {
