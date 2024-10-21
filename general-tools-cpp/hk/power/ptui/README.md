@@ -5,9 +5,9 @@ A tiny power monitor for the FOXSI housekeeping board. You can use it to turn sy
 ## Physical configuration
 
 ```mermaid
-flowchart LR
+flowchart TD
 
-HK board (192.168.1.16:7777) <--> ptui (192.168.1.118:9999)
+hk["`**hk**: 192.168.1.16:7777`"] <--> ptui["`**ptui**: 192.168.1.118:9999`"]
 ```
 
 ## Building
