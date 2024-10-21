@@ -16,7 +16,7 @@ const std::vector<uint8_t> adc_reply2 = {
 };
 
 /**
- * @brief A sample TCP server (like the Housekeeping board) for debugging use.
+ * @brief A sample TCP server (like the Housekeeping) for debugging use.
  */
 int main(int argc, char** argv) {
     if (argc != 3) {
