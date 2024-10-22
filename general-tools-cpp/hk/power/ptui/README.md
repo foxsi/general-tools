@@ -62,7 +62,7 @@ On my machine, using the native macOS Terminal application, or the [kitty](https
 If I don't `Disconnect` first, I can get rid of the character dumping issue by doing the following after `ctrl-C`:
 1. Don't move the cursor. Moving the cursor makes the characters appear.
 2. Hit `ctrl-C` again to get a blank line for command prompt.
-3. If you still haven't moved your cursor, 
+3. If you still haven't moved your cursor, type `reset` and hit enter to reload your terminal. Now you should be able to use the prompt normally again.
 
 ### Testing UI
 If you just want to test it out, you can launch the debug server in another terminal like this:
