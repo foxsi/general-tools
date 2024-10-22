@@ -54,6 +54,17 @@ providing your local IP address and port for your end of the connection. For exa
 
 Click the `Connect...` button to connect to the housekeeping board. After connecting, you can select a system on the left and turn it on or off on the right. Data is sampled at 1 Hz from the board, and displays in the center column. Data is also written to a time-tagged CSV file in `log/`.
 
+### Exiting
+You can `ptui` with `ctrl-C` like other terminal programs. But! Because of the way the UI is "drawn" (by writing characters on your terminal really fast), in some terminals you will continue to see printout on your terminal even after exiting.
+
+On my machine, using the native macOS Terminal application, or the [kitty](https://sw.kovidgoyal.net/kitty/) terminal, I can exit `ptui` cleanly by first hitting the `Disconnect` button before `ctrl-C`. This avoids a huge dump of characters on the command line.
+
+If I don't `Disconnect` first, I can get rid of the character dumping issue by doing the following after `ctrl-C`:
+1. Don't move the cursor. Moving the cursor makes the characters appear.
+2. Hit `ctrl-C` again to get a blank line for command prompt.
+3. If you still haven't moved your cursor, 
+
+### Testing UI
 If you just want to test it out, you can launch the debug server in another terminal like this:
 
 ```bash
