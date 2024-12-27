@@ -250,7 +250,7 @@ std::vector<double> HKADCNode::adc_table(std::vector<uint8_t>& data) {
 
     double ref_5v = 5.0;
     double current_gain = 0.2;
-    std::vector<double> v_divider_coefficients = {9.2, 4.0, 4.0, 1.68};
+    std::vector<double> v_divider_coefficients = {9.2, 2.0, 4.0, 1.68};
     double measured_5v = v_divider_coefficients[3] * ref_5v * (raw_5v_src & 0x0fff) / 0x0fff;
 
     std::vector<double> result(16);

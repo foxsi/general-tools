@@ -222,7 +222,7 @@ int main(int argc, char* argv[]) {
     std::thread refresh_ui([&] {
         while (refresh_ui_continue) {
             using namespace std::chrono_literals;
-            std::this_thread::sleep_for(1s);
+            std::this_thread::sleep_for(500ms);
             // `screen.Post(task)` will execute the update on the thread
             //  where |screen| lives (e.g. the main thread). Using 
             // `screen.Post(task)` is threadsafe.
