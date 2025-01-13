@@ -185,7 +185,7 @@ void HKRTDNode::poll_rtd() {
     // std::this_thread::sleep_for(std::chrono::milliseconds(1500));
     
     format_table.clear();
-    format_table.push_back({"RTD", "fault", "temp ºC", "error rate"});
+    format_table.push_back({"RTD", "fault", "temp ºC", "fault rate"});
 
     for (uint8_t id: config::rtd_ids) {
         // read command:
