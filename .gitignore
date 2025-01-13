@@ -13,3 +13,5 @@ log/
 
 # vscode
 .vscode/
+
+.cache/
