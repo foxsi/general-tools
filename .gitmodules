@@ -1,3 +1,6 @@
 [submodule "external/telemetry_tools"]
 	path = external/telemetry_tools
 	url = https://github.com/foxsi/telemetry_tools.git
+[submodule "external/foxsi4-commands"]
+	path = external/foxsi4-commands
+	url = https://github.com/foxsi/foxsi4-commands.git
