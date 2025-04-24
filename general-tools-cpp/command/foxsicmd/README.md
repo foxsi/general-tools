@@ -1,6 +1,6 @@
 # foxsicmd
 
-A very small command line application to command the Formatter over 
+A very small command line application to command the Formatter over serial link.
 
 ## Building
 You'll need an installation of [`boost::asio`](https://www.boost.org/users/download/) to use this. If you use homebrew, you can do:
@@ -18,13 +18,18 @@ $ brew install cmake
 
 The other dependency, [`FTXUI`](https://github.com/ArthurSonzogni/FTXUI), will automatically be retrieved when you build.
 
+To get this software on your machine, clone the [FOXSI `general-tools`](https://github.com/foxsi/general-tools) repository. Clone it recursively, so that you get the necessary [`foxsi4-commands`](https://github.com/foxsi/foxsi4-commands) configuration data as well:
+```bash
+git clone --recursive https://github.com/foxsi/general-tools.git
+```
+
 To build this software, do this:
 ```bash
-$ cd ptui
-$ mkdir build
-$ cd build
-$ cmake ..
-$ cmake --build .
+cd general-tools/general-tools-cpp/command/foxsicmd
+mkdir build
+cd build
+cmake ..
+cmake --build .
 ```
 
 ## Operation
@@ -37,7 +42,7 @@ You can run this tool like this:
 The options are:
 - `--help` or `-h`: display a help message listing these options.
 - `--config` or `-c` `<path to file>`: (required) pass in a path to a configuration file. The file [`foxsi4-commands/systems.json`](https://github.com/foxsi/foxsi4-commands/blob/main/systems.json) is expected here. You can write your own if you follow the same structure as the link (or just clone and edit that one).
-  - By default, `foxsicmd` will open the serial device from the JSON file for the `gse` system: `gse.logger_interface.uplink_device`. It will configure this device using settings (baud rate, parity bits, data bits, stop bits) under the `uplink` system.
+  - By default, `foxsicmd` will open the serial device from the JSON file for the `gse` system: `gse.logger_interface.uplink_device`. It will configure this device using settings (baud rate, parity bits, data bits, stop bits) under the `uplink` system. If you have cloned the `general-tools` repository, you can find `foxsi4-commands/` as a submodule a few folders up from here.
   - Note that the `systems.json` file itself refers to other command definition files under `foxsi4-commands`. So if you are cloning, download the whole repository instead of only the `systems.json` file. Ignore this if you have installed `foxsi4-commands` as a git submodule.
 - `--port` or `-p` `<path to serial device>`: substitute a different serial device from the one in the config file you passed. Note: the device settings (baud rate, parity bits, data bits, stop bits) will still be defined in the config file.
 - `--timepix` or `-t`: use the serial device definitions under `timepix.uart_interface` in the config file instead of the defaults. Note: the `timepix` serial device path can still be overwritten by passing the `--port` argument.
@@ -68,3 +73,5 @@ To run with the default UART configuration for Timepix but using your own serial
 ```bash
 ./bin/foxsicmd --config /path/to/foxsi4-commands/systems.json --port /dev/ttyMyDevice --timepix
 ```
+
+Use ctrl-C to exit.
