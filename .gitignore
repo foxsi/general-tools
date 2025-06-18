@@ -11,6 +11,10 @@ bin/
 *.log
 log/
 
+# python
+.env/
+.venv/
+
 # vscode
 .vscode/
 
