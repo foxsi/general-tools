@@ -6,6 +6,8 @@ import socket
 import argparse
 import asyncio
 
+from plotting import plot_temps
+
 # default network settings for cooler:
 default_cooler_ip = "192.168.3.1"
 default_cooler_port = 9760
@@ -98,7 +100,7 @@ async def handle_user(socket, file):
 
 async def repl(socket, file):
     """Wait for any user input while querying the cooler for status."""
-    await asyncio.gather(cooler_transaction(socket, file), handle_user(socket, file))
+    await asyncio.gather(cooler_transaction(socket, file), handle_user(socket, file), plot_temps(file, 0))
         
 
 

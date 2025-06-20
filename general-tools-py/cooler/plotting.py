@@ -21,13 +21,12 @@ async def plot_temps(file_name, read_size=0):
     plt.title(f"Log File: {file_name}")
     
     while CONT_PLOT:
-        print(CONT_PLOT)
         await asyncio.sleep(1)
         # buffer size of about 12,500 is about 10 mins worth of measurements with current sample rate (1 per second)
         with BackwardsReader(file=file_name, blksize=read_size, forward=True) as f:
             data = f.readlines()
         result = data_parser(data)
-        print(result)
+        
         if result is None:
             continue
         t1, s1, c1, t2, misc = result
