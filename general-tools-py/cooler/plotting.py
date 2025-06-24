@@ -19,7 +19,7 @@ READ_BUFFER = 0
 READ_BUFFER_USELESS = 500
 
 # stop the plot window popping to the front with every update
-plt.rcParams["figure.raise_window"]=False
+plt.rcParams["figure.raise_window"] = False
 
 async def plot_temps(file_name):
     await asyncio.sleep(5) # let the temepratures to be written a bit first
@@ -97,7 +97,8 @@ async def plot_temps(file_name):
             
             orig.xaxis.set_major_formatter(my_fmt)
             orig.tick_params(axis='x', labelrotation=45)
-            orig.set_xlim([_all_times[0], _all_times[-1]])
+            _time_max = np.argmax(_all_times-_all_times[0])
+            orig.set_xlim([_all_times[0], _all_times[_time_max]])
             if len(t1)>1:
                 orig.annotate(get_temp_metric_string(t1[:,0], t1[:,1]), (0.01, 0.01), xycoords="axes fraction", ha="left", va="bottom", backgroundcolor=(1,1,1,0.6))
             
@@ -107,7 +108,7 @@ async def plot_temps(file_name):
                 for c, a in enumerate(misc):
                     cycle = c%4
                     _ypos = min_c+mapping[cycle]*abs(max_c-min_c)
-                    if (a[0]-_all_times[0])/(_all_times[-1]-_all_times[0])<=0.5:
+                    if (a[0]-_all_times[0])/(_all_times[_time_max]-_all_times[0])<=0.5:
                         orig.annotate(a[1], (a[0], _ypos), va="top", ha="left", c=colour[cycle])
                     else:
                         orig.annotate(a[1], (a[0], _ypos), va="top", ha="right", c=colour[cycle])
