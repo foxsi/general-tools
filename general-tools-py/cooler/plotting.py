@@ -59,7 +59,6 @@ async def plot_temps(file_name):
             _t2_plot = True if np.ndim(t2)==2 else False
             misc_plot = True if np.ndim(misc)==2 else False
 
-
             _temps = tuple([ts[:,1] for ts in (t1, s1, c1) if np.ndim(ts)==2])
             _times = tuple([ts[:,0] for ts in (t1, s1, c1) if np.ndim(ts)==2])
 
@@ -109,9 +108,9 @@ async def plot_temps(file_name):
                     cycle = c%4
                     _ypos = min_c+mapping[cycle]*abs(max_c-min_c)
                     if (a[0]-_all_times[0])/(_all_times[_time_max]-_all_times[0])<=0.5:
-                        orig.annotate(a[1], (a[0], _ypos), va="top", ha="left", c=colour[cycle])
+                        orig.annotate(fr"{a[1]}", (a[0], _ypos), va="top", ha="left", c=colour[cycle])
                     else:
-                        orig.annotate(a[1], (a[0], _ypos), va="top", ha="right", c=colour[cycle])
+                        orig.annotate(fr"{a[1]}", (a[0], _ypos), va="top", ha="right", c=colour[cycle])
                     orig.plot([a[0], a[0]], [0.98*_ypos, _ypos], c=colour[cycle])
             
             plt.tight_layout()
@@ -242,4 +241,6 @@ if __name__=="__main__":
     async def main(file_name):
         await asyncio.gather(plot_temps(file_name), blah())
     
-    asyncio.run(main("/Users/kris/Downloads/tempy/log_cooling_2025-06-13_11-30-43.log"))
+    # asyncio.run(main("/Users/kris/Downloads/tempy/log_cooling_2025-06-13_11-30-43.log"))
+    f = "log/log_cooling_2025-06-24_15-48-00.log"
+    asyncio.run(main(f))
