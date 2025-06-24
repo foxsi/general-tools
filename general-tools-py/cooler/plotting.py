@@ -1,89 +1,141 @@
 
 import asyncio
 from datetime import datetime, timedelta
+import sys
 
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
+from matplotlib.widgets import TextBox
 import numpy as np
+
+import warnings
+warnings.filterwarnings("ignore")
 
 from readBackwards import BackwardsReader
 
 CONT_PLOT = True
+FIG = None
+READ_BUFFER = 0
+READ_BUFFER_USELESS = 500
 
-async def plot_temps(file_name, read_size=0):
-    await asyncio.sleep(2) # let the temepratures to be read a bit first
+# stop the plot window popping to the front with every update
+plt.rcParams["figure.raise_window"]=False
+
+async def plot_temps(file_name):
+    await asyncio.sleep(5) # let the temepratures to be written a bit first
     plt.ion()
+    plt.show()
     fig = plt.figure(figsize=(10,6), num="LN2 Cooling plot")
+    globals()["FIG"] = fig
     fig.canvas.mpl_connect('close_event', on_close)
     orig = plt.gca()
     twin = orig.twinx()
     my_fmt = mdates.DateFormatter('%H:%M:%S')
     plt.title(f"Log File: {file_name}")
+    axbox = fig.add_axes([0.8, 0.0, 0.15, 0.04])
+    text_box = TextBox(axbox, "Read Buffer [bytes]", textalignment="center")
+    text_box.on_submit(submit)
+    text_box.set_val(globals()["READ_BUFFER"])  # Trigger `submit` with the initial string.
+    try:
+        while CONT_PLOT:
+            await asyncio.sleep(0.5)
+            # buffer size of about 500 is about 20 seconds worth of measurements with current sample rate (1 per second)
+
+            if 0<globals()["READ_BUFFER"]<READ_BUFFER_USELESS:
+                print(f"0<[Read-buffer]<{READ_BUFFER_USELESS} will likely result in no data, setting to {READ_BUFFER_USELESS}.")     
+                text_box.set_val(READ_BUFFER_USELESS)
+
+            with BackwardsReader(file=file_name, blksize=globals()["READ_BUFFER"], forward=True) as f:
+                data = f.readlines()
+            result = data_parser(data)
+            
+            if result is None:
+                continue
+            t1, s1, c1, t2, misc = result
+
+            t1_plot = True if np.ndim(t1)==2 else False
+            s1_plot = True if np.ndim(s1)==2 else False
+            c1_plot = True if np.ndim(c1)==2 else False
+            _t2_plot = True if np.ndim(t2)==2 else False
+            misc_plot = True if np.ndim(misc)==2 else False
+
+
+            _temps = tuple([ts[:,1] for ts in (t1, s1, c1) if np.ndim(ts)==2])
+            _times = tuple([ts[:,0] for ts in (t1, s1, c1) if np.ndim(ts)==2])
+
+            _all_temps = np.concatenate(_temps)
+            _all_times = np.concatenate(_times)
+
+            orig.clear()
+            #twin.clear()
+            
+            if t1_plot:
+                orig.plot(t1[:,0], t1[:,1], color="c", lw=3, label="T1")
+            else:
+                orig.plot(t1, t1, color="c", lw=3, label="T1")
+            if s1_plot:
+                orig.plot(s1[:,0], s1[:,1], color="r", ls="--", lw=3, label="S1")
+            else:
+                orig.plot(s1, s1, color="r", ls="--", lw=3, label="S1")
+            if c1_plot:
+                orig.plot(c1[:,0], c1[:,1], color="m", ls=":", lw=3, label="C1")
+            else:
+                orig.plot(c1, c1, color="m", ls=":", lw=3, label="C1")
+
+            # orig.plot(t2[:,0], t2[:,1], color="m", lw=3, label="T2")
+            orig.legend(loc="center left")
+
+            _min_c, _max_c = np.nanmin(_all_temps), np.nanmax(_all_temps)
+            min_c = _min_c*0.95 if _min_c>=0 else _min_c*1.05 # if <0 then need the mag. of min. to get larger not smaller
+            max_c = _max_c*1.05 if _max_c>=0 else _max_c*0.95 # if <0 then need the mag. of max. to get smaller not larger
+            orig.set_ylim([min_c, max_c])
+            twin.set_ylim([c2f(min_c), c2f(max_c)])
+            
+            orig.set_ylabel(u"\u2103")
+            twin.set_ylabel(u"\u2109")
+            orig.set_xlabel(f"Time ({_all_times[0].strftime('%Y-%m-%d')})")
+            
+            orig.xaxis.set_major_formatter(my_fmt)
+            orig.tick_params(axis='x', labelrotation=45)
+            orig.set_xlim([_all_times[0], _all_times[-1]])
+            if len(t1)>1:
+                orig.annotate(get_temp_metric_string(t1[:,0], t1[:,1]), (0.01, 0.01), xycoords="axes fraction", ha="left", va="bottom", backgroundcolor=(1,1,1,0.6))
+            
+            if misc_plot:
+                mapping = {0:1, 1:0.95, 2:0.9, 3:0.85}
+                colour = [(0, 0, 0), (0.2, 0.2, 0.2), (0.4, 0.4, 0.4), (0.6, 0.6, 0.6)]
+                for c, a in enumerate(misc):
+                    cycle = c%4
+                    _ypos = min_c+mapping[cycle]*abs(max_c-min_c)
+                    if (a[0]-_all_times[0])/(_all_times[-1]-_all_times[0])<=0.5:
+                        orig.annotate(a[1], (a[0], _ypos), va="top", ha="left", c=colour[cycle])
+                    else:
+                        orig.annotate(a[1], (a[0], _ypos), va="top", ha="right", c=colour[cycle])
+                    orig.plot([a[0], a[0]], [0.98*_ypos, _ypos], c=colour[cycle])
+            
+            plt.tight_layout()
+            plt.draw()
+            plt.pause(0.1)
+    except KeyboardInterrupt:
+        print("Shut down plotting!")
+        sys.exit(0)
+
+def submit(read_buffer_size):
+    """Function to change the read-buffer size for plotting.
+
+    The larger the buffer, the further back in the file read.
     
-    while CONT_PLOT:
-        await asyncio.sleep(1)
-        # buffer size of about 12,500 is about 10 mins worth of measurements with current sample rate (1 per second)
-        with BackwardsReader(file=file_name, blksize=read_size, forward=True) as f:
-            data = f.readlines()
-        result = data_parser(data)
-        
-        if result is None:
-            continue
-        t1, s1, c1, t2, misc = result
+    A value of 0 means the whole file.
 
-        t1_plot = True if np.ndim(t1)==2 else False
-        s1_plot = True if np.ndim(s1)==2 else False
-        c1_plot = True if np.ndim(c1)==2 else False
-        _t2_plot = True if np.ndim(t2)==2 else False
-        _misc_plot = True if np.ndim(misc)==2 else False
-
-        _temps = tuple([ts[:,1] for ts in (t1, s1, c1) if np.ndim(ts)==2])
-        _times = tuple([ts[:,0] for ts in (t1, s1, c1) if np.ndim(ts)==2])
-
-        _all_temps = np.concatenate(_temps)
-        _all_times = np.concatenate(_times)
-       
-        orig.clear()
-        #twin.clear()
-        
-        if t1_plot:
-            orig.plot(t1[:,0], t1[:,1], color="c", lw=3, label="T1")
-        else:
-            orig.plot(t1, t1, color="c", lw=3, label="T1")
-        if s1_plot:
-            orig.plot(s1[:,0], s1[:,1], color="r", ls="--", lw=3, label="S1")
-        else:
-            orig.plot(s1, s1, color="r", ls="--", lw=3, label="S1")
-        if c1_plot:
-            orig.plot(c1[:,0], c1[:,1], color="m", ls=":", lw=3, label="C1")
-        else:
-            orig.plot(c1, c1, color="m", ls=":", lw=3, label="C1")
-
-        # orig.plot(t2[:,0], t2[:,1], color="m", lw=3, label="T2")
-        orig.legend(loc="upper right")
-
-        _min_c, _max_c = np.nanmin(_all_temps), np.nanmax(_all_temps)
-        min_c = _min_c*0.95 if _min_c>=0 else _min_c*1.05 # if <0 then need the mag. of min. to get larger not smaller
-        max_c = _max_c*1.05 if _max_c>=0 else _max_c*0.95 # if <0 then need the mag. of max. to get smaller not larger
-        orig.set_ylim([min_c, max_c])
-        twin.set_ylim([c2f(min_c), c2f(max_c)])
-        
-        orig.set_ylabel(u"\u2103")
-        twin.set_ylabel(u"\u2109")
-        orig.set_xlabel(f"Time ({_all_times[0].strftime('%Y-%m-%d')})")
-        
-        orig.xaxis.set_major_formatter(my_fmt)
-        orig.tick_params(axis='x', labelrotation=45)
-        orig.set_xlim([_all_times[0], _all_times[-1]])
-        if len(t1)>1:
-            orig.annotate(get_temp_metric_string(t1[:,0], t1[:,1]), (0.01, 0.01), xycoords="axes fraction", ha="left", va="bottom", backgroundcolor=(1,1,1,0.6))
-        plt.tight_layout()
-        plt.draw()
-        plt.pause(0.1)
+    If the value given is numeric then it will be cast to an int.
+    """
+    if read_buffer_size.isnumeric():
+        globals()["READ_BUFFER"] = int(read_buffer_size)
 
 def on_close(event):
     """If the figure is closed, then stop the program"""
     print("Closing figure.")
+    plt.close(globals()["FIG"])
     globals()["CONT_PLOT"] = False
 
 def data_parser(data):
@@ -180,8 +232,13 @@ def get_grad(x, y):
     s_xx = np.sum(x*x)
     return (n*s_xy - s_x*s_y)/(n*s_xx - s_x**2)
 
+async def blah():
+    while True:
+        await asyncio.sleep(4)
+        print("Blah")
+
 if __name__=="__main__":
-    async def main(file_name, read_size=0):
-        await asyncio.gather(plot_temps(file_name, read_size=read_size))
+    async def main(file_name):
+        await asyncio.gather(plot_temps(file_name), blah())
     
-    asyncio.run(main("/Users/kris/Downloads/tempy/log_cooling_2025-06-13_11-30-43.log", read_size=0))
+    asyncio.run(main("/Users/kris/Downloads/tempy/log_cooling_2025-06-13_11-30-43.log"))

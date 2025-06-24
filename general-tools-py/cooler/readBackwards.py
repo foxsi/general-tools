@@ -16,7 +16,6 @@ import os
 import struct
 
 
-
 class BackwardsReader:
 
     def __init__(self, file, blksize=4096, forward=False):
@@ -100,7 +99,6 @@ class BackwardsReader:
     def __exit__(self, exc_type, exc_value, exc_traceback):
         """Make sure to close the opened file before leaving context manager."""
         self.close()
-
 
 def read_raw_cdte(file):
     from FoGSE.telemetry_tools.parsers.CdTeparser import CdTerawalldata2parser

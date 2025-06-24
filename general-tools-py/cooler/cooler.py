@@ -1,4 +1,5 @@
 import sys
+import pathlib
 import re
 from datetime import datetime
 import os
@@ -98,9 +99,17 @@ async def handle_user(socket, file):
             file.close()
             sys.exit(0)
 
+def create_log_folder():
+    """Checks and creates the necessary log fodler in the directory."""
+    folder = os.path.join(pathlib.Path(__file__).parent, "log")
+    if os.path.exists(folder):
+        return
+    print(f"Creating `log` folder: {folder}.")
+    os.makedirs(folder, exist_ok=True)
+
 async def repl(socket, file):
     """Wait for any user input while querying the cooler for status."""
-    await asyncio.gather(cooler_transaction(socket, file), handle_user(socket, file), plot_temps(file, 0))
+    await asyncio.gather(cooler_transaction(socket, file), handle_user(socket, file), plot_temps(file.name))
         
 
 
@@ -121,6 +130,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     print("\033[92mconnected!\033[0m")
+    create_log_folder()
     try:
         file = open(args.log, 'w+')
     except IOError:
